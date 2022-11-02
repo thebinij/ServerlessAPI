@@ -1,31 +1,27 @@
 import {Handler} from '@netlify/functions';
-import mongoose, { Schema } from 'mongoose';
 import * as dotenv from 'dotenv';
+import { connectDB } from '../wealth-manager/database';
+import { Expense } from '../wealth-manager/model';
 dotenv.config();
 
 const URI = process.env['MONGO_URI'] || ''
 
 const handler:Handler = async function (event,context) {
-  console.log(event.httpMethod )
-  if(event.httpMethod == 'POST'){
-    await connectDB()
-    const Expense = mongoose.model('Expense', new Schema({
-        date: Date,
-        type: String,
-        method: String,
-        description: String,
-        amount:Number
-    }));
+  console.log(event.httpMethod,event.body,event.headers )
+    if(event.httpMethod == 'POST'){
+    await connectDB(URI)
 
        const newExpense = new Expense({ date: new Date(), type:'Travel', method: 'Digital Wallet', description: 'Travel Food', amount:22500  });
        newExpense.save();
   }
     return {
         statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Allow from anywhere 
+      },
         body: JSON.stringify({
             "success": "true"
         }),
-        headers: { 'access-control-allow-origin': '*' }
     }
     // const data = JSON.parse(event.body)
     // const path = event.path.replace(/\.netlify\/functions\/[^/]+/, '')
@@ -52,14 +48,3 @@ const handler:Handler = async function (event,context) {
 }
 
 export { handler}
-
-
-const connectDB = async () => {
-    try {
-      await mongoose.connect(URI)
-      console.log('MongoDB connected!!')
-    } catch (err) {
-      console.log('Failed to connect to MongoDB', err)
-    }
-  }
-  

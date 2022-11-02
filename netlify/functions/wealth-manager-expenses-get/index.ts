@@ -1,21 +1,14 @@
 import {Handler} from '@netlify/functions';
-import mongoose, { Schema } from 'mongoose';
 import * as dotenv from 'dotenv';
+import { connectDB } from '../wealth-manager/database';
+import { Expense } from '../wealth-manager/model';
 dotenv.config();
 
 const URI = process.env['MONGO_URI'] || ''
 
 const handler:Handler = async function (event,context) {
     if(event.httpMethod == 'GET'){    
-        await connectDB()
-        const Expense = mongoose.model('Expense', new Schema({
-            date: Date,
-            type: String,
-            method: String,
-            description: String,
-            amount:Number
-        }));
-
+        await connectDB(URI)
     const allexpenses = await Expense.find();
     return {
         statusCode: 200,
@@ -60,12 +53,5 @@ const handler:Handler = async function (event,context) {
 export { handler}
 
 
-const connectDB = async () => {
-    try {
-      await mongoose.connect(URI)
-      console.log('MongoDB connected!!')
-    } catch (err) {
-      console.log('Failed to connect to MongoDB', err)
-    }
-  }
+
   
