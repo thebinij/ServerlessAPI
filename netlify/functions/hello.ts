@@ -1,4 +1,5 @@
 import {Handler} from '@netlify/functions';
+
 const handler:Handler = async function (event,context) {
     return {
         statusCode: 200,
