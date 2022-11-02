@@ -1,4 +1,5 @@
-exports.handler = async function () {
+import {Handler} from '@netlify/functions';
+const handler:Handler = async function (event,context) {
     return {
         statusCode: 200,
         body: JSON.stringify({
@@ -6,3 +7,5 @@ exports.handler = async function () {
         })
     }
 }
+
+export { handler}
