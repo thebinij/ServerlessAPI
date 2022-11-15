@@ -59,8 +59,8 @@ export const signupController = async (req,res)=>{
           password: hashedPassword
         });
         const result = await newUser.save();
-        const accessToken = generateAccessToken(existingUser)
-        const refreshToken = generateRefreshToken(existingUser);
+        const accessToken = generateAccessToken(result)
+        const refreshToken = generateRefreshToken(result);
         res.status(201).json({user:result, token: accessToken, refreshToken: refreshToken});
       } catch (e) {
         console.log(e);
