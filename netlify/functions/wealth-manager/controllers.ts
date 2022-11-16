@@ -120,33 +120,16 @@ export const createExpensesController = async (req,res)=>{
           }
 }
 
-export const getStockPurchaseController = async (req,res)=>{
+export const getStockController = async (req,res)=>{
   try {
     await connectDB(URI);
     if(!req.user.id){
       res.status(400).json({message: "Bad Request"})
     }
-    const allStockBought = await Stock.find({userId:req.user.id,actionType: 'Buy'}).sort({ date: "desc" })
+    const allStocks= await Stock.find({userId:req.user.id}).sort({ date: "desc" })
     // .limit(2); await Expense.countDocuments();
-    const totalCount = allStockBought.length;
-    res.status(200).json({data:allStockBought,count:totalCount});
-  }
-  catch (e) {
-    console.log(e);
-    res.status(500).json({ message: "Something Went Wrong!" });
-  }
-}
-
-export const getStockSoldController = async (req,res)=>{
-  try {
-    await connectDB(URI);
-    if(!req.user.id){
-      res.status(400).json({message: "Bad Request"})
-    }
-    const allStockSold = await Stock.find({userId:req.user.id, actionType: 'Sell'}).sort({ date: "desc" })
-    // .limit(2); await Expense.countDocuments();
-    const totalCount = allStockSold.length;
-    res.status(200).json({data:allStockSold,count:totalCount});
+    const totalCount = allStocks.length;
+    res.status(200).json({data:allStocks,count:totalCount});
   }
   catch (e) {
     console.log(e);

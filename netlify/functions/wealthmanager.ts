@@ -2,7 +2,7 @@ import express from "express";
 import serverless from "serverless-http";
 import cors from "cors";
 import { check } from "express-validator";
-import { createExpensesController, createStockPurchaseController, createStockSoldController, getExpensesController, getStockPurchaseController, getStockSoldController, signinController, signOutController, signupController } from "./wealth-manager/controllers";
+import { createExpensesController, createStockPurchaseController, createStockSoldController, getExpensesController, getStockController, getStockPurchaseController, getStockSoldController, signinController, signOutController, signupController } from "./wealth-manager/controllers";
 import { authenticateToken, generateToken } from "./wealth-manager/middlewares";
 
 const app = express();
@@ -34,11 +34,8 @@ router.post("/signup",[
 //Get All Expenses
 router.get("/expenses",authenticateToken, getExpensesController);
 
-//Get All Stocks Purchase
-router.get("/stocks-purchases",authenticateToken, getStockPurchaseController);
-
-//Get All Stocks Sold
-router.get("/stocks-sold",authenticateToken, getStockSoldController);
+//Get All Stocks
+router.get("/stocks",authenticateToken, getStockController);
 
 //Create New Expense
 router.post(
