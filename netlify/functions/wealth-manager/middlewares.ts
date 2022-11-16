@@ -16,7 +16,7 @@ export const authenticateToken = async (req, res, next) => {
 };
 
 export const generateAccessToken = (user) =>{
-  return jwt.sign({id: user._id || user.id, email: user.email},SECRET_ACCESS_KEY,{expiresIn: '15min'})
+  return jwt.sign({id: user._id || user.id, email: user.email},SECRET_ACCESS_KEY,{expiresIn: '12h'})
 }
 
 export const generateRefreshToken = (user) =>{
