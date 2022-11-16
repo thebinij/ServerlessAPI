@@ -2,7 +2,7 @@ import express from "express";
 import serverless from "serverless-http";
 import cors from "cors";
 import { check } from "express-validator";
-import { createExpensesController, getExpensesController, signinController, signOutController, signupController } from "./wealth-manager/controllers";
+import { createExpensesController, createStockPurchaseController, createStockSoldController, getExpensesController, getStockPurchaseController, getStockSoldController, signinController, signOutController, signupController } from "./wealth-manager/controllers";
 import { authenticateToken, generateToken } from "./wealth-manager/middlewares";
 
 const app = express();
@@ -34,6 +34,12 @@ router.post("/signup",[
 //Get All Expenses
 router.get("/expenses",authenticateToken, getExpensesController);
 
+//Get All Stocks Purchase
+router.get("/stocks-purchases",authenticateToken, getStockPurchaseController);
+
+//Get All Stocks Sold
+router.get("/stocks-sold",authenticateToken, getStockSoldController);
+
 //Create New Expense
 router.post(
   "/expenses",
@@ -50,5 +56,36 @@ router.post(
   createExpensesController
 );
 
+//Create New Stock Purchse
+router.post(
+  "/stocks-purchases",
+  authenticateToken,
+  [
+    check("quantity").isFloat({ min: 0 })
+    .withMessage("the amount must greater or equals to 0."),
+    check("costPrice").isFloat({ min: 0 })
+    .withMessage("the costprice must greater or equals to 0.")
+  ],
+  createStockPurchaseController);
+
 app.use("/.netlify/functions/wealthmanager", router);
 module.exports.handler = serverless(app);
+
+
+//Create New Stock Sold
+router.post(
+  "/stocks-sold",
+  authenticateToken,
+  [
+    check("quantity").isFloat({ min: 0 })
+    .withMessage("the amount must greater or equals to 0."),
+    check("netCostPrice").isFloat({ min: 0 })
+    .withMessage("the amount must greater or equals to 0."),
+    check("soldPrice").isFloat({ min: 0 })
+    .withMessage("the amount must greater or equals to 0.")
+  ],
+  createStockSoldController);
+
+app.use("/.netlify/functions/wealthmanager", router);
+module.exports.handler = serverless(app);
+
