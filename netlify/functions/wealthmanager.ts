@@ -2,7 +2,7 @@ import express from "express";
 import serverless from "serverless-http";
 import cors from "cors";
 import { check } from "express-validator";
-import { createExpensesController, createStockPurchaseController, createStockSoldController, getExpensesController, getStockController, getStockPurchaseController, getStockSoldController, signinController, signOutController, signupController } from "./wealth-manager/controllers";
+import { createExpensesController, createStockPurchaseController, createStockSoldController, getExpensesController, getStockController,  signinController, signOutController, signupController } from "./wealth-manager/controllers";
 import { authenticateToken, generateToken } from "./wealth-manager/middlewares";
 
 const app = express();
