@@ -14,21 +14,21 @@ app.use(express.json());
 router.post('/token', generateToken)
 
 // Login USER
-router.post("/login", [check("email").isEmail()
+router.post("/auth/login", [check("email").isEmail()
 .withMessage("the email must be valid.")], signinController)
 
 // Logout USER
-router.post("/logout", signOutController)
+router.post("/auth/logout", signOutController)
 
 // SignUP New User
-router.post("/signup",[
+router.post("/auth/signup",[
   check("fullname").isString()
     .isLength({ min: 2 })
     .withMessage("the fullname is too short."),
   check("email").isEmail()
   .withMessage("the email must be valid."),
-  check("password").isStrongPassword()
-  .withMessage("the password is too weak.")
+  check("password").isLength({min:8})
+  .withMessage("the password should be at least 8 character long.")
 ], signupController)
 
 //Get All Expenses
