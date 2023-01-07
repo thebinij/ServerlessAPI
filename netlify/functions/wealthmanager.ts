@@ -53,7 +53,7 @@ router.post(
   createExpensesController
 );
 
-//Create New Stock Purchse
+//Create New Stock Purchase
 router.post(
   "/stocks-purchases",
   authenticateToken,

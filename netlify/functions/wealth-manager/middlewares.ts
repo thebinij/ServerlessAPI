@@ -16,7 +16,7 @@ export const authenticateToken = async (req, res, next) => {
 };
 
 export const generateAccessToken = (user) =>{
-  return jwt.sign({id: user._id || user.id, email: user.email},SECRET_ACCESS_KEY,{expiresIn: '12h'})
+  return jwt.sign({id: user._id || user.id, email: user.email},SECRET_ACCESS_KEY,{expiresIn: '1h'})
 }
 
 export const generateRefreshToken = (user) =>{
@@ -38,4 +38,15 @@ export const generateToken = (req,res)=>{
 
 export const deleteToken = (refreshtoken)=>{
   refreshTokens = refreshTokens.filter(token => token !== refreshtoken)
+}
+
+export async function verifyJWT(token: string) {
+  try {
+    return { payload: jwt.verify(token, SECRET_ACCESS_KEY), expired: false };
+  } catch (error) {
+    if ((error as Error).name == "TokenExpiredError") {
+      return { payload: jwt.decode(token), expired: true };
+    }
+    throw error;
+  }
 }
