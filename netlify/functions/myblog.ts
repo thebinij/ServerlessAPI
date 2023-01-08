@@ -4,12 +4,16 @@ import cors from "cors";
 import { validationResult } from "express-validator";
 import { check } from "express-validator";
 import { generateAccessToken, verifyJWT } from "./wealth-manager/middlewares";
+import { connectDB } from "./binij-blog/database";
+import { Article, User } from "./binij-blog/models";
+import mongoose from "mongoose";
 const app = express();
 const router = express.Router();
 app.use(cors());
 app.use(express.json());
 
-const validUser = [{email: "shresthabinij@gmail.com", password: "sujeeta"}]
+const URI = process.env["MONGO_URI"] || "";
+
 
 // Login USER
 router.post("/login", [check("email").isEmail()
@@ -24,7 +28,8 @@ router.post("/login", [check("email").isEmail()
     }
 
     try {
-        const existingUser = validUser.find(user=> user.email==email.toLowerCase())
+      await connectDB(URI);
+        const existingUser =   await User.findOne({email: email.toLowerCase()});
 
         if (!existingUser) {
             return res.status(400).json({ message: "User not found!" });
@@ -66,6 +71,79 @@ catch(e){
   res.status(500).json({ message: "Internal Server Error" });
 }
 })
+
+
+//Get Article By ID
+router.get("/article", async  function(req,res){
+  try {
+    await connectDB(URI);
+    const articleId = req.query.id
+    if(!articleId){
+      return res.status(400).json({ message: "Invalid Query" });
+    }
+
+    if (!mongoose.isValidObjectId(articleId)) {
+      return res.status(400).json({ message: "Invalid ObjectId" });
+    }
+
+    const article = await Article.findOne({_id: articleId});
+
+    if (!article) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    res.status(200).json({ data: article });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Something Went Wrong!" });
+  }
+});
+
+//Get All Articles
+router.get("/articles", async  function(req,res){
+  try {
+    await connectDB(URI);
+    const allArticles = await Article.find();
+    res.status(200).json({ data: allArticles });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Something Went Wrong!" });
+  }
+});
+
+//Create a Article
+router.post("/article-create", async function(req,res){
+  const error = validationResult(req).formatWith(({ msg }) => msg);
+   
+  const hasError = !error.isEmpty();
+  if (hasError) {
+    return res.status(422).json({ error: error.array() });
+  }
+  try {
+    await connectDB(URI);
+    const newArticle = new Article({
+      dateCreated: new Date(),
+      dateUpdated: null,
+      authorId: req.body.authorId,
+      authorName:req.body.authorName,
+      metaTitle: req.body.metaTitle,
+      metaDescription: req.body.metaDescription,
+      metaImage:req.body.metaImage,
+      metaTag: req.body.metaTag,
+      topicClass: req.body.topicClass,
+      similarTags: req.body.similarTags,
+      content: req.body.content,
+      contentLength: req.body.contentLength,
+      comments: [],
+    });
+   
+    const result = await newArticle.save();
+    res.status(201).json(result);
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Something Went Wrong!" });
+  }
+});
 
 app.use("/.netlify/functions/myblog", router);
 module.exports.handler = serverless(app);
