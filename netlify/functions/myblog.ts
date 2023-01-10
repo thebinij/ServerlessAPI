@@ -5,7 +5,7 @@ import { validationResult } from "express-validator";
 import { check } from "express-validator";
 import { generateAccessToken, verifyJWT } from "./wealth-manager/middlewares";
 import { connectDB } from "./binij-blog/database";
-import { Article, User } from "./binij-blog/models";
+import { Article, User, Song } from "./binij-blog/models";
 import mongoose from "mongoose";
 const app = express();
 const router = express.Router();
@@ -29,7 +29,7 @@ router.post("/login", [check("email").isEmail()
 
     try {
       await connectDB(URI);
-        const existingUser =   await User.findOne({email: email.toLowerCase()});
+        const existingUser = await User.findOne({email: email.toLowerCase()});
 
         if (!existingUser) {
             return res.status(400).json({ message: "User not found!" });
@@ -40,6 +40,8 @@ router.post("/login", [check("email").isEmail()
       if (!matchedPassword) {
         return res.status(400).json({ message: "Invalid Credential!" });
       }
+      existingUser.lastLogin = new Date().toUTCString();
+      const result = await existingUser.save();
       const accessToken = generateAccessToken(existingUser);
       const userCredential = {
         email: existingUser.email,
@@ -110,6 +112,53 @@ router.get("/articles", async  function(req,res){
     res.status(500).json({ message: "Something Went Wrong!" });
   }
 });
+
+//Get All Audio
+router.get("/audios", async  function(req,res){
+  try {
+    await connectDB(URI);
+    const allAudios = await Song.find();
+    res.status(200).json({ data: allAudios });
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Something Went Wrong!" });
+  }
+});
+
+// Update Audio
+router.patch("/audios", async function(req,res){
+  try {
+    await connectDB(URI);
+    const audioId = req.query.id
+    const count = req.query.increment;
+
+    if (!audioId || !mongoose.isValidObjectId(audioId)) {
+      return res.status(400).json({ message: "Invalid Query" });
+    }
+    const audio = await Song.findOne({_id: audioId});
+    if(!audio){
+      return res.status(404).json({ message: "Song not found" });
+    }
+    let update = {}
+    if(count=='like'){
+      update = { $inc: { likeCount: 1 }};
+    }
+    else if(count=='play'){
+      update = { $inc: { playCount: 1 }};
+    } else{
+      return res.status(400).json({ message: "Nothing To Update" });
+    }
+    const updatedAudio = await Song.updateOne({ _id: audioId },  update);
+    if(updatedAudio.modifiedCount>0){
+      res.status(200).json({ message: "Success" });
+    }else{
+      res.status(400).json({ message: "Update Failed" });
+    }
+  }catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Something Went Wrong!" });
+  }
+})
 
 //Create a Article
 router.post("/article-create", async function(req,res){
