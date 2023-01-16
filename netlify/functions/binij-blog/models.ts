@@ -1,5 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 
+export const Gallery = mongoose.model('Gallery', new Schema({
+    title: {type:String},
+    date: {type:Date},
+    images: [{
+        largeURL:{type:String},
+        thumbnailURL:{type:String},
+        width: {type: Number},
+        height: {type: Number},
+        caption: {type: String}
+    }]
+ }));
+ 
 export const Article = mongoose.model('Posts', new Schema({
     dateCreated: {type:Date, required:true},
     dateUpdated: {type:Date||null},
