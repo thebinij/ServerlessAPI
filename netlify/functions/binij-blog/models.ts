@@ -23,11 +23,10 @@ export const Article = mongoose.model('Posts', new Schema({
     metaTag: {type:String, required: true},
     similarTags: [String],
     topicClass: {type:String, required: true},
-    content: [String],
+    content: {type:[String],required:true},
     contentLength:  {type: Number, default:0},
-    comments: [String],
-    commentCount:  {type: Number, default:0},
-    likeCount: {type: Number, default:0},
+    viewCount: {type: Number, default:0},
+    pathName: {type:String}
 }));
 
 export const Song = mongoose.model("Audios", new Schema({

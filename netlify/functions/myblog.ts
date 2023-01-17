@@ -73,25 +73,27 @@ router.post("/validate-token", async function (req, res) {
   }
 });
 
-//Get Article By ID
+//Get Article By pathname
 router.get("/article", async function (req, res) {
   try {
     await connectDB(URI);
-    const articleId = req.query.id;
-    if (!articleId) {
+    const articleName = req.query.pathName;
+    if (!articleName) {
       return res.status(400).json({ message: "Invalid Query" });
     }
 
-    if (!mongoose.isValidObjectId(articleId)) {
-      return res.status(400).json({ message: "Invalid ObjectId" });
-    }
-
-    const article = await Article.findOne({ _id: articleId });
+    const article = await Article.findOne({ pathName: articleName })
 
     if (!article) {
       return res.status(404).json({ message: "Post not found" });
     }
-
+    // update View count   
+    const updatedArticle = await Article.updateOne({ _id: article._id }, {$inc: { viewCount: 1 } });
+    if (updatedArticle.modifiedCount > 0) {
+      console.log('Success')
+    } else {
+      console.log('Failed!!')
+    }
     res.status(200).json({ data: article });
   } catch (e) {
     console.log(e);
@@ -103,7 +105,7 @@ router.get("/article", async function (req, res) {
 router.get("/articles", async function (req, res) {
   try {
     await connectDB(URI);
-    const allArticles = await Article.find();
+    const allArticles = await Article.find().select('-content');
     res.status(200).json({ data: allArticles });
   } catch (e) {
     console.log(e);
